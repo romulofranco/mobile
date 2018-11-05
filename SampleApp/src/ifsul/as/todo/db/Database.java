@@ -9,9 +9,9 @@ import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import totalcross.db.sqlite.SQLiteUtil;
-import totalcross.sql.DriverManager;
+import totalcross.sql.PreparedStatement;
+import totalcross.sql.ResultSet;
 import totalcross.sql.Statement;
-import totalcross.sys.Convert;
 import totalcross.sys.Settings;
 import totalcross.sys.Vm;
 
@@ -62,4 +62,16 @@ public class Database {
                 + login + "','" + senha + "','N')");
         st.close();
     }
+    
+    public boolean checaUsuarioSenha(String login, String senha) throws SQLException {
+        PreparedStatement ps = util.con().prepareStatement("select login, senha from usuario where login=? and senha=?");
+        ps.setString(1, login);
+        ps.setString(2, senha);
+        
+        ResultSet rs = ps.executeQuery();
+        if (rs.next()) {
+            return true;
+        } else return false;
+    }
 }
+

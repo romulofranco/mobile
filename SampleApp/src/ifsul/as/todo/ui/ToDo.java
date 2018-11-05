@@ -45,7 +45,7 @@ public class ToDo extends MainWindow {
             Settings.screenWidth) * 0.20);
 
     public ToDo() {
-        super("Hello TotalCross", NO_BORDER);
+        super("ToDo List", NO_BORDER);
         setUIStyle(Settings.MATERIAL_UI);
         Settings.uiAdjustmentsBasedOnFontHeight = true;
 

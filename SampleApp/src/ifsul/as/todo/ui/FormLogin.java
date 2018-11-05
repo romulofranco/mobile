@@ -88,10 +88,14 @@ public class FormLogin extends Container {
             btLogin.addPressListener(new PressListener() {
                 @Override
                 public void controlPressed(ControlEvent ce) {
-                    checarUsuarioSenha();
+                    try {
+                        checarUsuarioSenha();
+                    } catch (SQLException ex) {
+                         showMessage("Login", "Falha ao conectar no banco de dados");
+                    }
                 }
             });
-            
+
             Database.getInstance().createLoginTable();
 
         } catch (IOException | ImageException e) {
@@ -102,16 +106,12 @@ public class FormLogin extends Container {
         }
     }
 
-    private void checarUsuarioSenha() {
-        if (edLogin.getText().equals("romulo")) {
-            if (edPass.getText().equals("1234")) {
-                showMessage("Login", "Usuário e senhas corretos");
+    private void checarUsuarioSenha() throws SQLException {
+        if (Database.getInstance().checaUsuarioSenha(edLogin.getText().trim(), edPass.getText().trim())) {
+            showMessage("Login", "Usuário e senhas corretos");
 
-                //Volta para a tela principal
-                MainWindow.getMainWindow().swap(parent);
-            } else {
-                showMessage("Login", "Senha inválida");
-            }
+            //Volta para a tela principal
+            MainWindow.getMainWindow().swap(parent);
         } else {
             showMessage("Login", "Usuário inválido");
         }

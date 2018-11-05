@@ -40,7 +40,8 @@ public class FormUsuario extends Container {
     
     private Edit edNome, edLogin, edSenha;
     private Button btnSalvar, btnCancelar;
-    private Connection dbcon;
+    
+    FormLogin containerLogin = new FormLogin();    
     
     private final int COMPONENT_H = fmH * 2;
     private final static int FLAT_EDGE_MARGIN = (int) (Math.min(Settings.screenHeight,
@@ -87,6 +88,7 @@ public class FormUsuario extends Container {
                     try {
                         //Salvar no banco de dados
                         doInsert();
+                        MainWindow.getMainWindow().swap(containerLogin);
                     } catch (SQLException ex) {
                         Logger.getLogger(FormUsuario.class.getName()).log(Level.SEVERE, null, ex);
                     } catch (InvalidDateException ex) {
@@ -97,8 +99,7 @@ public class FormUsuario extends Container {
             
             btnCancelar.addPressListener(new PressListener() {
                 @Override
-                public void controlPressed(ControlEvent ce) {
-                    FormLogin containerLogin = new FormLogin();
+                public void controlPressed(ControlEvent ce) {                    
                     MainWindow.getMainWindow().swap(containerLogin);
                 }
             });
