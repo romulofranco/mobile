@@ -33,14 +33,15 @@ import totalcross.util.InvalidDateException;
  */
 public class HelloTC extends MainWindow {
 
-    private Edit edName, edBorn, edPhone;
+    private Edit edName, edBorn, edPhone, edCPF;
     private Connection dbcon;
+    private FormLogin containerLogin;
 
     // fmH is the font size. We will set the components to have twice the size
     // of font.
     private final int COMPONENT_H = fmH * 2;
 
-    private final int FLAT_EDGE_MARGIN = (int) (Math.min(Settings.screenHeight,
+    private final static int FLAT_EDGE_MARGIN = (int) (Math.min(Settings.screenHeight,
             Settings.screenWidth) * 0.20);
 
     public HelloTC() {
@@ -63,6 +64,11 @@ public class HelloTC extends MainWindow {
                     - FLAT_EDGE_MARGIN, COMPONENT_H);
             edName.caption = "Name";
             edName.captionColor = 0x049CEE;
+
+            add(edCPF = new Edit(), LEFT + FLAT_EDGE_MARGIN, AFTER + 100, FILL
+                    - FLAT_EDGE_MARGIN, COMPONENT_H);
+            edCPF.caption = "CPF";
+            edCPF.captionColor = 0x049CEE;
 
             add(edBorn = new Edit(), SAME, AFTER + FLAT_EDGE_MARGIN, FILL
                     - FLAT_EDGE_MARGIN, SAME);
@@ -139,8 +145,12 @@ public class HelloTC extends MainWindow {
             dbcon = DriverManager.getConnection("jdbc:sqlite:"
                     + Convert.appendPath(Settings.appPath, "test.db"));
             Statement st = dbcon.createStatement();
-            st.execute("create table if not exists person (name varchar, born datetime, number varchar)");
+            st.execute("create table if not exists person (name varchar, born datetime, number varchar, cpf varchar)");
             st.close();
+
+            //Aqui abre a tela de login
+            containerLogin = new FormLogin();
+            MainWindow.getMainWindow().swap(containerLogin);
         } catch (Exception e) {
             MessageBox.showException(e, true);
             exit(0);
@@ -156,10 +166,11 @@ public class HelloTC extends MainWindow {
             String name = edName.getText();
             Date born = new Date(edBorn.getText());
             String phone = edPhone.getText();
+            String cpf = edCPF.getText();
 
             Statement st = dbcon.createStatement();
             st.executeUpdate("insert into person values('" + name + "','"
-                    + born.getSQLString() + "','" + phone + "')");
+                    + born.getSQLString() + "','" + phone + "','" + cpf + "')");
             st.close();
             clear();
             showToast("Data inserted successfully!");
@@ -174,4 +185,6 @@ public class HelloTC extends MainWindow {
 
         Toast.show(message, 2000);
     }
+
+    
 }
