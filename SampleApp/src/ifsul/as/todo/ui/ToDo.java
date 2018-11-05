@@ -1,4 +1,4 @@
-package hello;
+package ifsul.as.todo.ui;
 
 import java.sql.SQLException;
 
@@ -31,7 +31,7 @@ import totalcross.util.InvalidDateException;
  * You can find the full explanation of this sample at
  * http://www.totalcross.com/documentation/getting_started.html
  */
-public class HelloTC extends MainWindow {
+public class ToDo extends MainWindow {
 
     private Edit edName, edBorn, edPhone, edCPF;
     private Connection dbcon;
@@ -44,7 +44,7 @@ public class HelloTC extends MainWindow {
     private final static int FLAT_EDGE_MARGIN = (int) (Math.min(Settings.screenHeight,
             Settings.screenWidth) * 0.20);
 
-    public HelloTC() {
+    public ToDo() {
         super("Hello TotalCross", NO_BORDER);
         setUIStyle(Settings.MATERIAL_UI);
         Settings.uiAdjustmentsBasedOnFontHeight = true;
@@ -55,7 +55,7 @@ public class HelloTC extends MainWindow {
     @Override
     public void initUI() {
         try {
-            ImageControl ic = new ImageControl(new Image("hello/img/logo.png"));
+            ImageControl ic = new ImageControl(new Image("img/logo.png"));
             ic.scaleToFit = ic.centerImage = true;
             add(ic, LEFT, PARENTSIZE + 12, FILL, PARENTSIZE + 15);
 

@@ -3,9 +3,12 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package hello;
+package ifsul.as.todo.ui;
 
+import ifsul.as.todo.db.Database;
 import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import totalcross.db.sqlite.SQLiteUtil;
 import totalcross.io.IOException;
 import totalcross.sql.Statement;
@@ -46,7 +49,6 @@ public class FormLogin extends Container {
     private FormUsuario containerUsuario;
 
     private ImageControl ic;
-    private SQLiteUtil util;
 
     @Override
     public void initUI() {
@@ -89,19 +91,14 @@ public class FormLogin extends Container {
                     checarUsuarioSenha();
                 }
             });
+            
+            Database.getInstance().createLoginTable();
 
-            //Creating Database
-            util = new SQLiteUtil(Settings.appPath, "database.db");
-            Vm.debug(util.fullPath);
-
-            Statement st = util.con().createStatement();
-            st.execute("create table if not exists person (nome varchar(50), "
-                    + "login varchar(20), password varchar(20), manterLogado varchar(1))");
-            st.close();
-
-        } catch (IOException | ImageException | SQLException e) {
+        } catch (IOException | ImageException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
+        } catch (SQLException ex) {
+            Logger.getLogger(FormLogin.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
