@@ -9,11 +9,7 @@ import ifsul.as.todo.db.Database;
 import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import totalcross.db.sqlite.SQLiteUtil;
 import totalcross.io.IOException;
-import totalcross.sql.Statement;
-import totalcross.sys.Settings;
-import totalcross.sys.Vm;
 import totalcross.ui.Button;
 import totalcross.ui.Check;
 import totalcross.ui.Container;
@@ -40,7 +36,7 @@ import totalcross.ui.image.ImageException;
  *
  * @author admin
  */
-public class FormLogin extends Container {
+public class FormLogin extends BaseForm {
 
     private Edit edPass, edLogin;
     private Check ch;
@@ -96,8 +92,8 @@ public class FormLogin extends Container {
                 }
             });
 
-            Database.getInstance().createLoginTable();
-
+            Database.getInstance().createUsuarioTable();
+            
         } catch (IOException | ImageException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -108,17 +104,11 @@ public class FormLogin extends Container {
 
     private void checarUsuarioSenha() throws SQLException {
         if (Database.getInstance().checaUsuarioSenha(edLogin.getText().trim(), edPass.getText().trim())) {
-            showMessage("Login", "Usuário e senhas corretos");
-
-            //Volta para a tela principal
-            MainWindow.getMainWindow().swap(parent);
+            showToast("Usuário e senhas corretos");
+            FormToDo.USUARIO_LOGADO = edLogin.getText();
         } else {
             showMessage("Login", "Usuário inválido");
         }
     }
 
-    private void showMessage(String title, String message) {
-        MessageBox mb = new MessageBox(title, message);
-        mb.popup();
-    }
 }
