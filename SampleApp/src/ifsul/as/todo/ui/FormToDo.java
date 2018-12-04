@@ -6,7 +6,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import jdk.nashorn.internal.objects.NativeArray;
 import totalcross.sys.Settings;
 import totalcross.ui.Button;
 import totalcross.ui.ComboBox;
@@ -20,6 +19,8 @@ import totalcross.ui.MainWindow;
 import totalcross.ui.TabbedContainer;
 import totalcross.ui.Toast;
 import totalcross.ui.dialog.MessageBox;
+import totalcross.ui.event.ControlEvent;
+import totalcross.ui.event.PressListener;
 import totalcross.ui.font.Font;
 import totalcross.ui.gfx.Color;
 import totalcross.ui.image.ImageException;
@@ -32,7 +33,7 @@ import totalcross.ui.image.ImageException;
  * You can find the full explanation of this sample at
  * http://www.totalcross.com/documentation/getting_started.html
  */
-public class FormToDo extends MainWindow {
+public final class FormToDo extends MainWindow {
 
     public static final int BKGCOLOR = 0x0A246A;
     public static final int SELCOLOR = 0x829CE2; // Color.brighter(BKGCOLOR,120);
@@ -58,12 +59,24 @@ public class FormToDo extends MainWindow {
 
     public FormToDo() {
         super("ToDo List", NO_BORDER);
-        setUIStyle(Settings.MATERIAL_UI);
+        setUIStyle(Settings.ANDROID_UI);
         Settings.uiAdjustmentsBasedOnFontHeight = true;
 
         setBackForeColors(Color.getRGB(255, 255, 255), Color.getRGB(50, 50, 50));
 
         USUARIO_LOGADO = "";
+
+        prepareDB();
+
+    }
+
+    public void prepareDB() {
+        try {
+            Database.getInstance().createUsuarioTable();
+            Database.getInstance().createTaskTable();
+        } catch (SQLException ex) {
+            Logger.getLogger(FormToDo.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     @Override
@@ -82,7 +95,7 @@ public class FormToDo extends MainWindow {
 
             cmbCategoria = new ComboBox();
             add(new Label("Categoria"), LEFT + 30, AFTER + 20, PREFERRED, PREFERRED);
-            add(cmbCategoria, AFTER + 10, SAME, PARENTSIZE, PREFERRED);
+            add(cmbCategoria, AFTER + 10, SAME, FILL, PREFERRED);
 
             String tabCaptions[] = {"Abertas",
                 "Concluídas"};
@@ -101,11 +114,9 @@ public class FormToDo extends MainWindow {
 
             prepareCombo();
 
-            carregarTasks("%");
-
             //Aqui abre a tela de login
-//            containerLogin = new FormLogin();
-            //          MainWindow.getMainWindow().swap(containerLogin);
+            containerLogin = new FormLogin();
+            MainWindow.getMainWindow().swap(containerLogin);
         } catch (Exception e) {
             MessageBox.showException(e, true);
             exit(0);
@@ -114,8 +125,8 @@ public class FormToDo extends MainWindow {
 
     public void carregarTasks(String categoria) {
         try {
-            ArrayList<Task> tasksAbertas = Database.getInstance().getTaskList(FormToDo.USUARIO_LOGADO, Task.TASK_STATUS_ABERTA, categoria);
-            ArrayList<Task> tasksConcluidas = Database.getInstance().getTaskList(FormToDo.USUARIO_LOGADO, Task.TASK_STATUS_CONCLUIDA, categoria);
+            ArrayList<Task> tasksAbertas = Database.getInstance().getTaskList(FormToDo.USUARIO_LOGADO, categoria, Task.TASK_STATUS_ABERTA);
+            ArrayList<Task> tasksConcluidas = Database.getInstance().getTaskList(FormToDo.USUARIO_LOGADO, categoria, Task.TASK_STATUS_CONCLUIDA);
             carregarGrid(gridTaskAbertas, tasksAbertas);
             carregarGrid(gridTaskConcluidas, tasksConcluidas);
         } catch (SQLException ex) {
@@ -149,6 +160,7 @@ public class FormToDo extends MainWindow {
 
     public void prepareCombo() {
         ArrayList<String> categorias = Database.getInstance().getCategoriaList();
+        categorias.add("");
         categorias.add("Teste");
         categorias.add("Teste 1");
         String[] items = new String[]{};
@@ -174,6 +186,14 @@ public class FormToDo extends MainWindow {
 
         add(btnRemove, RIGHT - 50, BOTTOM - 25);
         add(btnAdd, BEFORE - 10, BOTTOM - 25);
+
+        btnAdd.addPressListener(new PressListener() {
+            @Override
+            public void controlPressed(ControlEvent ce) {
+                TaskWindow tw = new TaskWindow(null);
+                tw.popup();
+            }
+        });
         return grid;
     }
 

@@ -13,8 +13,8 @@ import totalcross.util.Date;
  */
 public class Task {
 
-    public static final String TASK_STATUS_CONCLUIDA = "c";
-    public static final String TASK_STATUS_ABERTA = "a";
+    public static final String TASK_STATUS_CONCLUIDA = "C";
+    public static final String TASK_STATUS_ABERTA = "A";
 
     private int id;
     private String descricao;
@@ -75,7 +75,7 @@ public class Task {
     }
 
     public String getImg() {
-        if (this.status.equals(Task.TASK_STATUS_ABERTA)) {
+        if (this.status.startsWith(Task.TASK_STATUS_ABERTA)) {
             return "@red";
         } else {
             return "@green";
@@ -83,12 +83,12 @@ public class Task {
     }
 
     public String[] getStringForGrid() {
-        String[] grid = new String[3];
+        String[] grid = new String[4];
 
         grid[0] = this.getImg();
         grid[1] = "" + this.id;
         grid[2] = " " + this.descricao;
-        grid[3] = " " + this.categoria;
+        grid[3] = " " + (this.categoria == null ? "" : this.categoria);
 
         return grid;
     }

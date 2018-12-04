@@ -10,7 +10,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import static sun.security.jgss.GSSUtil.login;
 import totalcross.db.sqlite.SQLiteUtil;
 import totalcross.sql.PreparedStatement;
 import totalcross.sql.ResultSet;
@@ -44,7 +43,7 @@ public class Database {
 
     public void createTaskTable() throws SQLException {
         Statement st = util.con().createStatement();
-        st.execute("create table if not exists tasks (id INTEGER PRIMARY KEY AUTOINCREMENT, descricao varchar(150), "
+        st.execute("create table if not exists task (id INTEGER PRIMARY KEY AUTOINCREMENT, descricao varchar(150), "
                 + "usuario varchar(20), categoria varchar(30), status varchar(1), datatask datetime)");
         st.close();
     }
@@ -64,14 +63,15 @@ public class Database {
     }
 
     public int inserirTask(Task task) throws SQLException {
-        PreparedStatement ps = util.con().prepareStatement("insert into tasks (descricao, usuario, categoria, status, datatask) values (?,?,?,?,?)");
+        PreparedStatement ps = util.con().prepareStatement("insert into task (descricao, usuario, categoria, status, datatask) values (?,?,?,?,?)");
         ps.setString(1, task.getDescricao());
         ps.setString(2, task.getUsuario());
         ps.setString(3, task.getCategoria());
-        ps.setString(4, task.getStatus());
+        ps.setString(4, task.getStatus().substring(0, 1));
         ps.setDate(5, task.getDataTask());
-
-        return ps.executeUpdate();
+        int rows = ps.executeUpdate();
+        ps.close();
+        return rows;
     }
 
     public boolean checaUsuarioSenha(String login, String senha) throws SQLException {
@@ -81,8 +81,12 @@ public class Database {
 
         ResultSet rs = ps.executeQuery();
         if (rs.next()) {
+            rs.close();
+            ps.close();
             return true;
         } else {
+            rs.close();
+            ps.close();
             return false;
         }
     }
@@ -91,11 +95,32 @@ public class Database {
         return new ArrayList<>();
     }
 
+    public Task getTaskByID(int id) throws SQLException {
+        PreparedStatement ps = util.con().prepareStatement("select * from task where id = ?");
+        ps.setInt(1, id);
+        
+        ResultSet rs = ps.executeQuery();
+        Task t = new Task();
+        if (rs.next()) {
+            t = new Task();
+            t.setCategoria(rs.getString("categoria"));
+            t.setDescricao(rs.getString("descricao"));
+            t.setId(rs.getInt("id"));
+            t.setDataTask(rs.getDate("datatask"));
+            t.setStatus(rs.getString("status"));
+            t.setUsuario(rs.getString("usuario"));
+
+        }
+
+        ps.close();
+        return t;
+    }
+
     public ArrayList<Task> getTaskList(String usuario, String categoria, String status) throws SQLException {
-        PreparedStatement ps = util.con().prepareStatement("select * from tasks where status=? and usuario=? and categoria like ? order by datatask");
-        ps.setString(1, status);
+        PreparedStatement ps = util.con().prepareStatement("select * from task where status like ? and usuario=? and categoria like ? order by datatask");
+        ps.setString(1, status.substring(0, 1) + "%");
         ps.setString(2, usuario);
-        ps.setString(3, categoria + "%");
+        ps.setString(3, "%");
 
         ResultSet rs = ps.executeQuery();
         ArrayList<Task> taskList = new ArrayList<>();
@@ -110,6 +135,20 @@ public class Database {
             taskList.add(t);
         }
 
+        ps.close();
         return taskList;
     }
+
+    public int getId(String tabela) throws SQLException {
+        PreparedStatement ps = util.con().prepareStatement("select max(id) from " + tabela);
+        ResultSet rs = ps.executeQuery();
+        int numID = 1;
+        if (rs.next()) {
+            numID = rs.getInt(1) + 1;
+        }
+
+        ps.close();
+        return numID;
+    }
+
 }

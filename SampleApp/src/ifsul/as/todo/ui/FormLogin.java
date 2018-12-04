@@ -87,25 +87,24 @@ public class FormLogin extends BaseForm {
                     try {
                         checarUsuarioSenha();
                     } catch (SQLException ex) {
-                         showMessage("Login", "Falha ao conectar no banco de dados");
+                        showMessage("Login", "Falha ao conectar no banco de dados");
                     }
                 }
             });
 
-            Database.getInstance().createUsuarioTable();
-            
         } catch (IOException | ImageException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
-        } catch (SQLException ex) {
-            Logger.getLogger(FormLogin.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
     private void checarUsuarioSenha() throws SQLException {
         if (Database.getInstance().checaUsuarioSenha(edLogin.getText().trim(), edPass.getText().trim())) {
-            showToast("Usuário e senhas corretos");
-            FormToDo.USUARIO_LOGADO = edLogin.getText();
+//            showToast("Usuário e senhas corretos");
+            FormToDo.USUARIO_LOGADO = edLogin.getText();            
+            FormToDo formTodo = (FormToDo)FormToDo.getMainWindow();
+            formTodo.carregarTasks("%");
+            formTodo.swap(formTodo);
         } else {
             showMessage("Login", "Usuário inválido");
         }
